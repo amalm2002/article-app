@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import User from "../models/User";
 import { Login, Register } from "../interfaces/user/authentication.types";
-import { UpdatePassword, UserDetils } from "../interfaces/user/user.profile.types";
+import { UpdatePassword, updateThePreference, UserDetils } from "../interfaces/user/user.profile.types";
 
 export class UserService {
 
@@ -124,6 +124,21 @@ export class UserService {
         );
 
         return { message: "Password changed successfully!" };
+    }
+
+    async updatePreference(preferenceData: updateThePreference) {
+
+        const { userId, preference } = preferenceData
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        user.preferences = preference;
+        await user.save();
+
+        return user;
     }
 
 }

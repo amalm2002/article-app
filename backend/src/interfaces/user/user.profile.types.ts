@@ -16,3 +16,8 @@ export interface UpdatePassword {
     currentPassword: string;
     newPassword: string;
 }
+
+export interface updateThePreference {
+    userId: string;
+    preference: string[];
+}

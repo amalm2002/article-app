@@ -160,7 +160,14 @@ const Settings = () => {
         description: "Preferences updated successfully!",
       });
     } catch (error) {
+      const errorMsg =
+        error.response?.data?.message || 'Failed to update the prefrences'
 
+      toast({
+        title: "Error",
+        description: errorMsg,
+        variant: "destructive",
+      });
     }
   };
 

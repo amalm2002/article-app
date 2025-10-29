@@ -65,7 +65,6 @@ export class UserController {
 
     changePassword = async (req: Request, res: Response) => {
         try {
-            console.log(req.body)
 
             const { userId, currentPassword, newPassword } = req.body
 
@@ -86,6 +85,22 @@ export class UserController {
     }
 
     updatePreference = async (req: Request, res: Response) => {
+        try {
 
+            const { userId, preference } = req.body
+
+            const updateThePreference = await userService.updatePreference({
+                userId,
+                preference
+            })
+
+            return res.status(200).json({ message: 'Preference updated successfully !' })
+
+        } catch (error: any) {
+            console.error("Failed to update the preference:", error);
+            return res.status(500).json({
+                message: error.message || "Internal server error",
+            });
+        }
     }
 }

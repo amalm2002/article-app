@@ -19,5 +19,5 @@ export interface UpdatePassword {
 
 export interface PreferencesUpdate {
     userId: string;
-    preference: any
+    preference: string[]
 }
