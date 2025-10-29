@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,17 +10,22 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ThumbsUp, ThumbsDown, Ban } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { backendApi } from "@/api/endpoints";
 
 interface Article {
-  id: number;
+  _id: string;
   title: string;
   description: string;
   category: string;
   author: string;
   date: string;
   image: string;
+  imageUrl?: string;
+  userId: string;
   likes: number;
   dislikes: number;
+  likedBy?: string[];
+  dislikedBy?: string[];
 }
 
 interface ArticleDialogProps {
@@ -31,29 +36,53 @@ interface ArticleDialogProps {
 
 const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
   const { toast } = useToast();
+
+  const [currentArticle, setCurrentArticle] = useState(article);
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
   const [blocked, setBlocked] = useState(false);
 
-  const handleLike = () => {
-    if (liked) {
-      setLiked(false);
-      toast({ description: "Like removed" });
-    } else {
-      setLiked(true);
+  useEffect(() => {
+    setCurrentArticle(article);
+    setLiked(article.likedBy?.includes(article.userId) || false);
+    setDisliked(article.dislikedBy?.includes(article.userId) || false);
+  }, [article]);
+
+  const handleLike = async () => {
+    try {
+      const response = await backendApi.handleLike(
+        currentArticle._id,
+        currentArticle.userId
+      );
+
+      setCurrentArticle(response.data); 
+      setLiked(!liked);
       setDisliked(false);
-      toast({ description: "Article liked!" });
+
+      toast({
+        description: liked ? "Like removed" : "Article liked!",
+      });
+    } catch (error) {
+      toast({ description: "Error while liking article" });
     }
   };
 
-  const handleDislike = () => {
-    if (disliked) {
-      setDisliked(false);
-      toast({ description: "Dislike removed" });
-    } else {
-      setDisliked(true);
+  const handleDislike = async () => {
+    try {
+      const response = await backendApi.handleDislike(
+        currentArticle._id,
+        currentArticle.userId
+      );
+
+      setCurrentArticle(response.data); 
+      setDisliked(!disliked);
       setLiked(false);
-      toast({ description: "Article disliked" });
+
+      toast({
+        description: disliked ? "Dislike removed" : "Article disliked!",
+      });
+    } catch (error) {
+      toast({ description: "Error while disliking article" });
     }
   };
 
@@ -72,25 +101,29 @@ const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
         <DialogHeader>
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-4">
-              <DialogTitle className="text-2xl">{article.title}</DialogTitle>
-              <Badge variant="secondary">{article.category}</Badge>
+              <DialogTitle className="text-2xl">{currentArticle.title}</DialogTitle>
+              <Badge variant="secondary">{currentArticle.category}</Badge>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>By {article.author}</span>
+              <span>By {currentArticle.author}</span>
               <span>•</span>
-              <span>{article.date}</span>
+              <span>{currentArticle.date}</span>
             </div>
           </div>
         </DialogHeader>
 
         <div className="space-y-6">
-          <img
-            src={article.image}
-            alt={article.title}
-            className="w-full h-64 object-cover rounded-lg"
-          />
+          <div className="w-full h-64 overflow-hidden rounded-lg">
+            <img
+              src={currentArticle.imageUrl}
+              alt={currentArticle.title}
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
 
-          <p className="text-foreground leading-relaxed">{article.description}</p>
+          <p className="text-foreground leading-relaxed">
+            {currentArticle.description}
+          </p>
 
           <Separator />
 
@@ -103,8 +136,9 @@ const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
                 disabled={blocked}
               >
                 <ThumbsUp className="h-4 w-4 mr-2" />
-                {liked ? "Liked" : "Like"} ({article.likes + (liked ? 1 : 0)})
+                {liked ? "Liked" : "Like"} ({currentArticle.likes ?? 0})
               </Button>
+
               <Button
                 variant={disliked ? "destructive" : "outline"}
                 size="sm"
@@ -112,9 +146,10 @@ const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
                 disabled={blocked}
               >
                 <ThumbsDown className="h-4 w-4 mr-2" />
-                {disliked ? "Disliked" : "Dislike"} ({article.dislikes + (disliked ? 1 : 0)})
+                {disliked ? "Disliked" : "Dislike"} ({currentArticle.dislikes ?? 0})
               </Button>
             </div>
+
             <Button
               variant="outline"
               size="sm"

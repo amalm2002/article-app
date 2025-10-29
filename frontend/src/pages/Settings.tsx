@@ -11,6 +11,8 @@ import { ArrowLeft } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store";
 import { backendApi } from "@/api/endpoints";
+import { useDispatch } from "react-redux";
+import { userLogin } from "@/services/slice/userSlice";
 
 const CATEGORIES = [
   { id: "sports", label: "Sports" },
@@ -38,8 +40,9 @@ const Settings = () => {
     newPassword: "",
     confirmPassword: "",
   });
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(["sports", "space", "technology"]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const userId = useSelector((state: RootState) => state.userData.user_id);
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -57,6 +60,12 @@ const Settings = () => {
         });
 
         setSelectedCategories(user.preferences || []);
+        dispatch(userLogin({
+          user: `${user.firstName} ${user.lastName}`,
+          user_id: user._id,
+          preferences: user.preferences || [],
+          isLogin: true,
+        }))
 
       } catch (error) {
         toast({
@@ -155,6 +164,15 @@ const Settings = () => {
         userId,
         preference: selectedCategories
       })
+      
+      const user = response.user
+
+      dispatch(userLogin({
+        user: `${user.firstName} ${user.lastName}`,
+        user_id: user._id,
+        preferences: user.preferences || [],
+        isLogin: true,
+      }))
       toast({
         title: "Success",
         description: "Preferences updated successfully!",

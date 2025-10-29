@@ -94,7 +94,7 @@ export class UserController {
                 preference
             })
 
-            return res.status(200).json({ message: 'Preference updated successfully !' })
+            return res.status(200).json({ message: 'Preference updated successfully !', user: updateThePreference })
 
         } catch (error: any) {
             console.error("Failed to update the preference:", error);

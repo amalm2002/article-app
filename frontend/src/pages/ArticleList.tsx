@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,46 +15,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-// Mock data
-const MOCK_MY_ARTICLES = [
-  {
-    id: 1,
-    title: "Getting Started with React",
-    description: "A comprehensive guide to building modern web applications with React.",
-    category: "technology",
-    date: "2024-01-10",
-    likes: 45,
-    dislikes: 2,
-    blocks: 0,
-  },
-  {
-    id: 2,
-    title: "The Art of Photography",
-    description: "Tips and techniques for capturing stunning photographs.",
-    category: "entertainment",
-    date: "2024-01-08",
-    likes: 32,
-    dislikes: 1,
-    blocks: 0,
-  },
-  {
-    id: 3,
-    title: "Healthy Living in 2024",
-    description: "Essential tips for maintaining a healthy lifestyle this year.",
-    category: "health",
-    date: "2024-01-05",
-    likes: 67,
-    dislikes: 3,
-    blocks: 1,
-  },
-];
+import { useSelector } from "react-redux";
+import { RootState } from "@/services/store";
+import { backendApi } from "@/api/endpoints";
 
 const ArticleList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [articles, setArticles] = useState(MOCK_MY_ARTICLES);
+  const [articles, setArticles] = useState<any[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const userId = useSelector((state: RootState) => state.userData.user_id)
+  useEffect(() => {
+    try {
+      const fetchArticles = async () => {
+        const response = await backendApi.fetchUserArticles(userId)
+        setArticles(response);
+      }
+      fetchArticles()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to load articles",
+        variant: "destructive",
+      });
+    }
+  }, [userId])
 
   const handleDelete = () => {
     if (deleteId) {

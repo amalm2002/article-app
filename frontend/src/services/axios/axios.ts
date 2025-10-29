@@ -2,9 +2,18 @@ import axios from "axios";
 
 const axiosConnection = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
-    headers: {
-        "Content-Type": "application/json",
-    },
+});
+
+axiosConnection.interceptors.request.use((config) => {
+
+    if (config.data instanceof FormData) {
+
+        delete config.headers["Content-Type"];
+
+    } else {
+        config.headers["Content-Type"] = "application/json";
+    }
+    return config;
 });
 
 axiosConnection.interceptors.response.use(

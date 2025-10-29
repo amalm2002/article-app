@@ -1,3 +1,4 @@
+import { ArticlePreference } from "@/interfaces/article.types";
 import { Login, Register } from "@/interfaces/authentication.types";
 import { PreferencesUpdate, UpdatePassword, UserDeatils, UserId } from "@/interfaces/user.profile.types";
 import axiosConnection from "@/services/axios/axios";
@@ -22,12 +23,35 @@ export const backendApi = {
         const response = await axiosConnection.put('/update-user', data)
         return response.data
     },
-    changePassword:async (data:UpdatePassword)=>{
-        const response =await axiosConnection.patch('/update-password',data)
+    changePassword: async (data: UpdatePassword) => {
+        const response = await axiosConnection.patch('/update-password', data)
         return response.data
     },
-    preferencesUpdate:async (data:PreferencesUpdate)=>{
-        const response=await axiosConnection.patch('/update-preference',data)
+    preferencesUpdate: async (data: PreferencesUpdate) => {
+        const response = await axiosConnection.patch('/update-preference', data)
         return response.data
-    }
+    },
+    createArticle: async (data: any) => {
+        const response = await axiosConnection.post('/article/create', data)
+        return response.data
+    },
+    fetchUserArticles: async (userId: string) => {
+        const response = await axiosConnection.get('/get-articles', {
+            params: { userId }
+        })
+        return response.data
+    },
+    userPreferenceArticles: async (data: ArticlePreference) => {
+        const response = await axiosConnection.post('/get-preference/articles', data)
+        return response.data
+    },
+    handleLike: async (articleId: string, userId: string) => {
+        const response = await axiosConnection.patch(`/article/${articleId}/like`, { userId });
+        return response.data;
+    },
+    handleDislike: async (articleId: string, userId: string) => {
+        const response = await axiosConnection.patch(`/article/${articleId}/dislike`, { userId });
+        return response.data;
+    },
+
 }

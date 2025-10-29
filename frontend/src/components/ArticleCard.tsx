@@ -11,6 +11,7 @@ interface Article {
   author: string;
   date: string;
   image: string;
+  imageUrl?: string;
   likes: number;
   dislikes: number;
 }
@@ -19,6 +20,7 @@ interface ArticleCardProps {
   article: Article;
   onView: () => void;
 }
+
 
 const ArticleCard = ({ article, onView }: ArticleCardProps) => {
   return (
