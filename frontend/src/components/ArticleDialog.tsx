@@ -86,14 +86,25 @@ const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
     }
   };
 
-  const handleBlock = () => {
+ const handleBlock = async () => {
+  try {
+    const response = await backendApi.blockArticle(currentArticle._id);
+
     setBlocked(true);
     toast({
       title: "Article blocked",
-      description: "You won't see articles from this category anymore",
+      description: "This article has been blocked successfully.",
     });
-    onClose();
-  };
+
+    onClose(); 
+  } catch (error: any) {
+    toast({
+      title: "Error",
+      description: error.response?.data?.message || "Failed to block article",
+      variant: "destructive",
+    });
+  }
+};
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

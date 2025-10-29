@@ -53,5 +53,32 @@ export const backendApi = {
         const response = await axiosConnection.patch(`/article/${articleId}/dislike`, { userId });
         return response.data;
     },
+    fetchArticleDetails: async (articleId: string) => {
+        const response = await axiosConnection.get(`/article-details`, {
+            params: { articleId },
+        });
+        return response.data;
+    },
+    updateArticle: async (articleId: string, formData: FormData) => {
+        const response = await axiosConnection.put(`/update-article/${articleId}`, formData);
+        return response.data;
+    },
+    deleteArticle: async (articleId: string) => {
+        const response = await axiosConnection.delete(`/delete/${articleId}`)
+        return response.data
+    },
+    fetchBlockedArticles: async (userId: string) => {
+        const response = await axiosConnection.get(`/articles/blocked/${userId}`);
+        return response.data;
+    },
+    unblockArticle: async (articleId: string) => {
+        const response = await axiosConnection.put(`/articles/unblock/${articleId}`);
+        return response.data;
+    },
+    blockArticle: async (articleId: string) => {
+        const response = await axiosConnection.put(`/articles/block/${articleId}`);
+        return response.data;
+    },
+
 
 }

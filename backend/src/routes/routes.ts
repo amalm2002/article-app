@@ -23,6 +23,14 @@ router.patch('/update-preference', userController.updatePreference)
 router.post('/article/create', upload.single("image"), articleController.createArticle);
 router.get('/get-articles', articleController.getArticles)
 router.post('/get-preference/articles', articleController.getPreferenceArticles)
+router.get("/article-details", articleController.articleDetails);
+router.put("/update-article/:articleId", upload.single("image"), articleController.updateArticle);
+router.delete("/delete/:articleId", articleController.deleteArticle);
+
+// Block / Un-Block
+router.put("/articles/block/:articleId", articleController.blockArticle);
+router.get("/articles/blocked/:userId", articleController.fetchBlockedArticles);
+router.put("/articles/unblock/:articleId", articleController.unblockArticle);
 
 // Like / Dislike Article
 router.patch('/article/:id/like', articleController.likeArticle);

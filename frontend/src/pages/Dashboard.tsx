@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Search, Plus, Settings, List, LogOut } from "lucide-react";
+import { BookOpen, Search, Plus, Settings, List, LogOut, Ban } from "lucide-react";
 import ArticleCard from "@/components/ArticleCard";
 import ArticleDialog from "@/components/ArticleDialog";
 import { useDispatch, useSelector } from "react-redux";
@@ -74,6 +74,9 @@ const Dashboard = () => {
               </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate("/settings")}>
                 <Settings className="h-4 w-4 mr-2" /> Settings
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/blocked/articles")}>
+                <Ban className="h-4 w-4 mr-2" /> Blocked Articles
               </Button>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" /> Logout

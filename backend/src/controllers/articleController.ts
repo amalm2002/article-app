@@ -61,6 +61,46 @@ export class ArticleController {
         }
     }
 
+    articleDetails = async (req: Request, res: Response) => {
+        try {
+            const { articleId } = req.query;
+            const article = await articleService.getArticleDetails(articleId as string);
+            res.status(200).json({ data: article });
+        } catch (error: any) {
+            console.error("Error fetching  articles details:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    updateArticle = async (req: Request, res: Response) => {
+        try {
+            const { articleId } = req.params;
+            const updatedArticle = await articleService.updateArticle(articleId, req.body, req.file);
+            res.status(200).json({ message: "Article updated", data: updatedArticle });
+        } catch (error: any) {
+            console.error("Error update articles details:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    deleteArticle = async (req: Request, res: Response) => {
+        try {
+            const { articleId } = req.params;
+
+            const result = await articleService.deleteArticle(articleId);
+
+            if (!result) {
+                res.status(404).json({ message: "Article not found" });
+                return;
+            }
+
+            res.status(200).json({ message: "Article deleted successfully" });
+        } catch (error: any) {
+            console.error("Error deleting article:", error);
+            res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    }
+
     likeArticle = async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
@@ -72,7 +112,6 @@ export class ArticleController {
         }
     };
 
-
     dislikeArticle = async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
@@ -83,4 +122,45 @@ export class ArticleController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
+    fetchBlockedArticles = async (req: Request, res: Response) => {
+        try {
+            const { userId } = req.params;
+            const blockedArticles = await articleService.fetchBlockedArticles(userId);
+            res.status(200).json(blockedArticles);
+        } catch (error: any) {
+            console.error("Error fetching blocked articles:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+
+    unblockArticle = async (req: Request, res: Response) => {
+        try {
+            const { articleId } = req.params;
+            const unblockedArticle = await articleService.unblockArticle(articleId);
+            res.status(200).json({
+                message: "Article unblocked successfully",
+                article: unblockedArticle,
+            });
+        } catch (error: any) {
+            console.error("Error unblocking article:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    blockArticle = async (req: Request, res: Response) => {
+        try {
+            const { articleId } = req.params;
+            const blockedArticle = await articleService.blockArticle(articleId);
+            res.status(200).json({
+                message: "Article blocked successfully",
+                article: blockedArticle,
+            });
+        } catch (error: any) {
+            console.error("Error blocking article:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
 };

@@ -23,7 +23,7 @@ const ArticleList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [articles, setArticles] = useState<any[]>([]);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const userId = useSelector((state: RootState) => state.userData.user_id)
   useEffect(() => {
@@ -42,16 +42,31 @@ const ArticleList = () => {
     }
   }, [userId])
 
-  const handleDelete = () => {
-    if (deleteId) {
-      setArticles(articles.filter((a) => a.id !== deleteId));
+  const handleDelete = async () => {
+    if (!deleteId) return;
+
+    try {
+      await backendApi.deleteArticle(deleteId);
+
+      setArticles((prevArticles) =>
+        prevArticles.filter((a) => a._id !== deleteId)
+      );
+
       toast({
         title: "Success",
         description: "Article deleted successfully",
       });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to delete article",
+        variant: "destructive",
+      });
+    } finally {
       setDeleteId(null);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-secondary p-4">
@@ -107,14 +122,14 @@ const ArticleList = () => {
               <CardFooter className="gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => navigate(`/article/edit/${article.id}`)}
+                  onClick={() => navigate(`/article/edit/${article._id}`)}
                 >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => setDeleteId(article.id)}
+                  onClick={() => setDeleteId(article._id)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Upload, X } from "lucide-react";
+import { backendApi } from "@/api/endpoints";
 
 const CATEGORIES = [
   { id: "sports", label: "Sports" },
@@ -24,21 +25,42 @@ const ArticleEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  // Mock existing article data
+
   const [articleData, setArticleData] = useState({
-    title: "Getting Started with React",
-    description: "A comprehensive guide to building modern web applications with React.",
-    category: "technology",
-    tags: "react, javascript, webdev",
+    title: "",
+    description: "",
+    category: "",
+    tags: "",
   });
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop"
-  );
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    const fetchArticlesDetails = async () => {
+      try {
+        if (id) {
+          const response = await backendApi.fetchArticleDetails(id);
+          const article = response.data;
+          setArticleData({
+            title: article.title,
+            description: article.description,
+            category: article.category,
+            tags: article.tags?.join(", ") || "",
+          });
+          setImagePreview(article.imageUrl);
+        }
+      } catch (error) {
+        toast({ description: "Failed to load article details", variant: "destructive" });
+      }
+    };
+
+    fetchArticlesDetails();
+  }, [id]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -47,34 +69,39 @@ const ArticleEdit = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!articleData.category) {
-      toast({
-        title: "Error",
-        description: "Please select a category",
-        variant: "destructive",
-      });
+      toast({ description: "Please select a category", variant: "destructive" });
       return;
     }
 
-    // TODO: Implement actual article update
-    toast({
-      title: "Success",
-      description: "Article updated successfully!",
-    });
-    navigate("/articles");
+    try {
+      const formData = new FormData();
+      formData.append("title", articleData.title);
+      formData.append("description", articleData.description);
+      formData.append("category", articleData.category);
+      formData.append("tags", articleData.tags);
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      await backendApi.updateArticle(id, formData);
+      toast({
+        title: "Success",
+        description: "Article updated successfully!"
+      });
+      navigate("/articles");
+    } catch (error) {
+      toast({ description: "Error updating article", variant: "destructive" });
+    }
   };
 
   return (
     <div className="min-h-screen bg-secondary p-4">
       <div className="container mx-auto max-w-3xl py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/articles")}
-          className="mb-6"
-        >
+        <Button variant="ghost" onClick={() => navigate("/articles")} className="mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to My Articles
         </Button>
@@ -86,93 +113,78 @@ const ArticleEdit = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Article Title</Label>
+              <div>
+                <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
-                  placeholder="Enter a compelling title..."
                   value={articleData.title}
-                  onChange={(e) =>
-                    setArticleData({ ...articleData, title: e.target.value })
-                  }
+                  onChange={(e) => setArticleData({ ...articleData, title: e.target.value })}
                   required
                 />
               </div>
 
-              <div className="space-y-2">
+              <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  placeholder="Write your article content..."
+                  rows={6}
                   value={articleData.description}
-                  onChange={(e) =>
-                    setArticleData({ ...articleData, description: e.target.value })
-                  }
-                  rows={8}
+                  onChange={(e) => setArticleData({ ...articleData, description: e.target.value })}
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+              <div>
+                <Label>Category</Label>
                 <Select
                   value={articleData.category}
-                  onValueChange={(value) =>
-                    setArticleData({ ...articleData, category: value })
-                  }
+                  onValueChange={(value) => setArticleData({ ...articleData, category: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.label}
+                    {CATEGORIES.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div>
                 <Label htmlFor="tags">Tags</Label>
                 <Input
                   id="tags"
-                  placeholder="Enter tags separated by commas (e.g., innovation, future, AI)"
                   value={articleData.tags}
-                  onChange={(e) =>
-                    setArticleData({ ...articleData, tags: e.target.value })
-                  }
+                  onChange={(e) => setArticleData({ ...articleData, tags: e.target.value })}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Article Image</Label>
+              <div>
+                <Label>Image</Label>
                 {imagePreview ? (
                   <div className="relative">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-64 object-cover rounded-lg"
-                    />
+                    <img src={imagePreview} alt="preview" className="w-full h-64 object-cover rounded-lg" />
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute top-2 right-2"
-                      onClick={() => setImagePreview(null)}
+                      onClick={() => {
+                        setImagePreview(null);
+                        setImageFile(null);
+                      }}
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                    <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <div className="border-2 border-dashed p-8 rounded-lg text-center">
+                    <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
                     <Label htmlFor="image-upload" className="cursor-pointer">
-                      <span className="text-primary hover:underline">
-                        Click to upload
-                      </span>{" "}
-                      or drag and drop
+                      <span className="text-primary underline">Click to upload</span>
                     </Label>
                     <Input
                       id="image-upload"
@@ -185,18 +197,9 @@ const ArticleEdit = () => {
                 )}
               </div>
 
-              <div className="flex gap-3">
-                <Button type="submit" className="flex-1">
-                  Save Changes
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate("/articles")}
-                >
-                  Cancel
-                </Button>
-              </div>
+              <Button type="submit" className="w-full">
+                Save Changes
+              </Button>
             </form>
           </CardContent>
         </Card>

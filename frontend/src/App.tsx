@@ -14,6 +14,7 @@ import ArticleEdit from "./pages/ArticleEdit";
 import NotFound from "./pages/NotFound";
 import { useSelector } from "react-redux";
 import { RootState } from "./services/store";
+import BlockedArticleList from "./pages/BlockedArticleList";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => {
             {/* protect pages */}
             <Route path="/dashboard" element={isLogin ? <Dashboard /> : <Navigate to="/login" />} />
             <Route path="/settings" element={isLogin ? <Settings /> : <Navigate to="/login" />} />
+            <Route path="/blocked/articles" element={isLogin ? <BlockedArticleList /> : <Navigate to="/login" />} />
             <Route path="/article/create" element={isLogin ? <ArticleCreate /> : <Navigate to="/login" />} />
             <Route path="/articles" element={isLogin ? <ArticleList /> : <Navigate to="/login" />} />
             <Route path="/article/edit/:id" element={isLogin ? <ArticleEdit /> : <Navigate to="/login" />} />
