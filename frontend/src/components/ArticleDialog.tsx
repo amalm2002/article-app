@@ -11,28 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { ThumbsUp, ThumbsDown, Ban } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { backendApi } from "@/api/endpoints";
+import { ArticleDialogProps } from "@/interfaces/article.types";
 
-interface Article {
-  _id: string;
-  title: string;
-  description: string;
-  category: string;
-  author: string;
-  date: string;
-  image: string;
-  imageUrl?: string;
-  userId: string;
-  likes: number;
-  dislikes: number;
-  likedBy?: string[];
-  dislikedBy?: string[];
-}
 
-interface ArticleDialogProps {
-  article: Article;
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
   const { toast } = useToast();

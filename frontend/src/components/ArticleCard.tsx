@@ -2,24 +2,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, Eye } from "lucide-react";
+import { ArticleCardProps } from "@/interfaces/article.types";
 
-interface Article {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  author: string;
-  date: string;
-  image: string;
-  imageUrl?: string;
-  likes: number;
-  dislikes: number;
-}
 
-interface ArticleCardProps {
-  article: Article;
-  onView: () => void;
-}
 
 
 const ArticleCard = ({ article, onView }: ArticleCardProps) => {
