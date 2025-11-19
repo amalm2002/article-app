@@ -75,32 +75,42 @@ const Dashboard = () => {
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+
             <div className="flex items-center gap-2">
               <BookOpen className="h-8 w-8 text-primary" />
               <h1 className="text-2xl font-bold">Article Feeds</h1>
             </div>
-            <nav className="flex items-center gap-2">
+
+            <nav className="flex flex-wrap items-center gap-2">
               <Button variant="ghost" size="sm" onClick={() => navigate("/article/create")}>
-                <Plus className="h-4 w-4 mr-2" /> Create Article
+                <Plus className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Create Article</span>
               </Button>
+
               <Button variant="ghost" size="sm" onClick={() => navigate("/articles")}>
-                <List className="h-4 w-4 mr-2" /> My Articles
+                <List className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">My Articles</span>
               </Button>
+
               <Button variant="ghost" size="sm" onClick={() => navigate("/settings")}>
-                <Settings className="h-4 w-4 mr-2" /> Settings
+                <Settings className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Settings</span>
               </Button>
+
               <Button variant="ghost" size="sm" onClick={() => navigate("/blocked/articles")}>
-                <Ban className="h-4 w-4 mr-2" /> Blocked Articles
+                <Ban className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Blocked</span>
               </Button>
+
               <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" /> Logout
+                <LogOut className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </nav>
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
