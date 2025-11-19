@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { backendApi } from "@/api/endpoints";
+import { validateEmail, validateName, validatePassword, validatePhone } from "@/utils/validation";
 
 const CATEGORIES = [
   { id: "sports", label: "Sports" },
@@ -32,6 +34,18 @@ const Register = () => {
     confirmPassword: "",
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+
 
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories((prev) =>
@@ -61,6 +75,22 @@ const Register = () => {
       });
       return;
     }
+    if (
+      errors.firstName ||
+      errors.lastName ||
+      errors.phone ||
+      errors.email ||
+      errors.password ||
+      errors.confirmPassword
+    ) {
+      toast({
+        title: "Error",
+        description: "Please fix the errors before submitting",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const payload = {
         ...formData,
@@ -100,22 +130,36 @@ const Register = () => {
                 <Input
                   id="firstName"
                   value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  required
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ ...formData, firstName: value });
+
+                    const error = validateName(value, "first");
+                    setErrors((prev) => ({ ...prev, firstName: error }));
+                  }}
                 />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm">{errors.firstName}</p>
+                )}
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  required
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ ...formData, lastName: value });
+
+                    const error = validateName(value, "last");
+                    setErrors((prev) => ({ ...prev, lastName: error }));
+                  }}
                 />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm">{errors.lastName}</p>
+                )}
+
               </div>
             </div>
 
@@ -123,13 +167,21 @@ const Register = () => {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                required
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ ...formData, email: value });
+
+                  const error = validateEmail(value);
+                  setErrors((prev) => ({ ...prev, email: error }));
+                }}
               />
+
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email}</p>
+              )}
+
             </div>
 
             <div className="space-y-2">
@@ -138,11 +190,15 @@ const Register = () => {
                 id="phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                required
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ ...formData, phone: value });
+                  const error = validatePhone(value);
+                  setErrors({ ...errors, phone: error });
+                }}
               />
+              {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+
             </div>
 
             <div className="space-y-2">
@@ -154,34 +210,67 @@ const Register = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, dob: e.target.value })
                 }
-                required
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData({ ...formData, password: value });
+
+                      const error = validatePassword(value);
+                      setErrors((prev) => ({ ...prev, password: error }));
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-red-500 text-sm">{errors.password}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({ ...formData, confirmPassword: e.target.value })
-                  }
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData({ ...formData, confirmPassword: value });
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        confirmPassword:
+                          value !== formData.password ? "Passwords do not match" : "",
+                      }));
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                )}
               </div>
             </div>
 
@@ -219,7 +308,7 @@ const Register = () => {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 };
 
