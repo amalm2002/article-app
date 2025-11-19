@@ -55,6 +55,20 @@ const Dashboard = () => {
     dispatch(userLogout());
   };
 
+  const removeArticleFromList = (articleId: string) => {
+    setArticles((prev) => prev.filter((item) => item._id !== articleId));
+  };
+
+  const updateArticle = (updatedArticle: any) => {
+    setArticles((prev) =>
+      prev.map((a) => (a._id === updatedArticle._id ? updatedArticle : a))
+    );
+  };
+
+  const removeArticle = (articleId: string) => {
+    setArticles((prev) => prev.filter((a) => a._id !== articleId));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -140,6 +154,9 @@ const Dashboard = () => {
           article={selectedArticle}
           isOpen={!!selectedArticle}
           onClose={() => setSelectedArticle(null)}
+          onBlocked={removeArticleFromList}
+          onUpdateArticle={updateArticle}
+          onRemoveArticle={removeArticle}
         />
       )}
     </div>

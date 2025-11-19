@@ -15,7 +15,7 @@ import { ArticleDialogProps } from "@/interfaces/article.types";
 
 
 
-const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
+const ArticleDialog = ({ article, isOpen, onClose, onBlocked, onUpdateArticle, onRemoveArticle }: ArticleDialogProps) => {
   const { toast } = useToast();
 
   const [currentArticle, setCurrentArticle] = useState(article);
@@ -35,8 +35,8 @@ const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
         currentArticle._id,
         currentArticle.userId
       );
-
-      setCurrentArticle(response.data); 
+      onUpdateArticle(response.data);
+      setCurrentArticle(response.data);
       setLiked(!liked);
       setDisliked(false);
 
@@ -54,8 +54,8 @@ const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
         currentArticle._id,
         currentArticle.userId
       );
-
-      setCurrentArticle(response.data); 
+      setCurrentArticle(response.data);
+      onUpdateArticle(response.data);
       setDisliked(!disliked);
       setLiked(false);
 
@@ -67,25 +67,27 @@ const ArticleDialog = ({ article, isOpen, onClose }: ArticleDialogProps) => {
     }
   };
 
- const handleBlock = async () => {
-  try {
-    const response = await backendApi.blockArticle(currentArticle._id);
+  const handleBlock = async () => {
+    try {
+      const response = await backendApi.blockArticle(currentArticle._id);
 
-    setBlocked(true);
-    toast({
-      title: "Article blocked",
-      description: "This article has been blocked successfully.",
-    });
+      setBlocked(true);
+      toast({
+        title: "Article blocked",
+        description: "This article has been blocked successfully.",
+      });
 
-    onClose(); 
-  } catch (error: any) {
-    toast({
-      title: "Error",
-      description: error.response?.data?.message || "Failed to block article",
-      variant: "destructive",
-    });
-  }
-};
+      if (onBlocked) onBlocked(currentArticle._id);
+
+      onClose();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to block article",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

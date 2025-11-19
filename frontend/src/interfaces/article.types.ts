@@ -23,6 +23,9 @@ export interface ArticleDialogProps {
     article: Article;
     isOpen: boolean;
     onClose: () => void;
+    onBlocked?: (id: string) => void;
+    onUpdateArticle: (article: any) => void;
+    onRemoveArticle: (id: string) => void;
 }
 
 
