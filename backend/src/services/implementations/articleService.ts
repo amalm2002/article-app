@@ -1,12 +1,14 @@
 import { Types } from "mongoose";
-import cloudinary from "../config/cloudinary";
-import { ArticleData } from "../interfaces/article/article.types";
-import { Article } from "../models/Article";
+import cloudinary from "../../config/cloudinary";
+import { ArticleData } from "../../interfaces/article/article.types";
+import { Article } from "../../models/Article";
+import { IArticleService } from "../interfaces/articleService.interfaces";
 
 
 
-export class ArticleService {
-    async createArticle(data: ArticleData) {
+export class ArticleService implements IArticleService {
+   
+    async createArticle(data: ArticleData): Promise<any> {
         const { title, description, category, tags, userId, image } = data;
 
         let imageUrl = "";

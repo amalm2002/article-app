@@ -1,9 +1,10 @@
 import bcrypt from "bcrypt";
-import User from "../models/User";
-import { Login, Register } from "../interfaces/user/authentication.types";
-import { UpdatePassword, updateThePreference, UserDetils } from "../interfaces/user/user.profile.types";
+import User from "../../models/User";
+import { Login, Register } from "../../interfaces/user/authentication.types";
+import { UpdatePassword, updateThePreference, UserDetils } from "../../interfaces/user/user.profile.types";
+import { IUserService } from "../interfaces/userService.interfces";
 
-export class UserService {
+export class UserService implements IUserService {
 
     async registerUser(userData: Register) {
         const { email, phone, password } = userData;

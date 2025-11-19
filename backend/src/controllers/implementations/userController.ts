@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
-import { UserService } from "../services/userService";
+import { IUserController } from "../interfaces/userController.interface";
+import { IUserService } from "../../services/interfaces/userService.interfces";
 
-const userService = new UserService();
 
-export class UserController {
+export class UserController implements IUserController {
+
+    constructor(private _userService: IUserService) {}
 
     getUser = async (req: Request, res: Response) => {
         try {
@@ -11,7 +13,7 @@ export class UserController {
             if (!userId) {
                 return res.status(400).json({ message: "No user Id found" });
             }
-            const user = await userService.getUser(userId)
+            const user = await this._userService.getUser(userId)
             return res.status(201).json({
                 message: "User fetched successfully",
                 data: user,
@@ -44,7 +46,7 @@ export class UserController {
                 });
             }
 
-            const userData = await userService.updateUser({
+            const userData = await this._userService.updateUser({
                 userId,
                 firstName,
                 lastName,
@@ -68,7 +70,7 @@ export class UserController {
 
             const { userId, currentPassword, newPassword } = req.body
 
-            const updatePassword = await userService.changePassword({
+            const updatePassword = await this._userService.changePassword({
                 userId,
                 currentPassword,
                 newPassword
@@ -89,7 +91,7 @@ export class UserController {
 
             const { userId, preference } = req.body
 
-            const updateThePreference = await userService.updatePreference({
+            const updateThePreference = await this._userService.updatePreference({
                 userId,
                 preference
             })

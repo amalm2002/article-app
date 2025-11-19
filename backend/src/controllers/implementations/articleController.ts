@@ -1,15 +1,18 @@
 import { Request, Response } from "express";
-import { ArticleService } from "../services/articleService";
+import { IArticleService } from "../../services/interfaces/articleService.interfaces";
+import { IArticleController } from "../interfaces/articleController.interface";
 
-const articleService = new ArticleService()
 
-export class ArticleController {
-    createArticle = async (req: Request, res: Response) => {
+export class ArticleController implements IArticleController {
+
+    constructor(private _articleService: IArticleService) { }
+
+    createArticle = async (req: Request, res: Response): Promise<any> => {
         try {
             const { title, description, category, tags, userId } = req.body;
             const image = req.file;
 
-            const article = await articleService.createArticle({
+            const article = await this._articleService.createArticle({
                 title,
                 description,
                 category,
@@ -30,10 +33,10 @@ export class ArticleController {
         }
     }
 
-    getArticles = async (req: Request, res: Response) => {
+    getArticles = async (req: Request, res: Response): Promise<any> => {
         try {
             const { userId } = req.query
-            const articles = await articleService.getArticles(userId as string)
+            const articles = await this._articleService.getArticles(userId as string)
             return res.status(200).json(articles)
         } catch (error: any) {
             console.error("Error fetching articles:", error);
@@ -43,11 +46,11 @@ export class ArticleController {
         }
     }
 
-    getPreferenceArticles = async (req: Request, res: Response) => {
+    getPreferenceArticles = async (req: Request, res: Response): Promise<any> => {
         try {
             const { userId, preferences } = req.body;
 
-            const articles = await articleService.getPreferenceArticles(userId, preferences);
+            const articles = await this._articleService.getPreferenceArticles(userId, preferences);
 
             return res.status(200).json({
                 message: "Articles fetched successfully",
@@ -61,10 +64,10 @@ export class ArticleController {
         }
     }
 
-    articleDetails = async (req: Request, res: Response) => {
+    articleDetails = async (req: Request, res: Response): Promise<any> => {
         try {
             const { articleId } = req.query;
-            const article = await articleService.getArticleDetails(articleId as string);
+            const article = await this._articleService.getArticleDetails(articleId as string);
             res.status(200).json({ data: article });
         } catch (error: any) {
             console.error("Error fetching  articles details:", error);
@@ -72,10 +75,10 @@ export class ArticleController {
         }
     }
 
-    updateArticle = async (req: Request, res: Response) => {
+    updateArticle = async (req: Request, res: Response): Promise<any> => {
         try {
             const { articleId } = req.params;
-            const updatedArticle = await articleService.updateArticle(articleId, req.body, req.file);
+            const updatedArticle = await this._articleService.updateArticle(articleId, req.body, req.file);
             res.status(200).json({ message: "Article updated", data: updatedArticle });
         } catch (error: any) {
             console.error("Error update articles details:", error);
@@ -83,11 +86,11 @@ export class ArticleController {
         }
     }
 
-    deleteArticle = async (req: Request, res: Response) => {
+    deleteArticle = async (req: Request, res: Response): Promise<any> => {
         try {
             const { articleId } = req.params;
 
-            const result = await articleService.deleteArticle(articleId);
+            const result = await this._articleService.deleteArticle(articleId);
 
             if (!result) {
                 res.status(404).json({ message: "Article not found" });
@@ -101,32 +104,32 @@ export class ArticleController {
         }
     }
 
-    likeArticle = async (req: Request, res: Response) => {
+    likeArticle = async (req: Request, res: Response): Promise<any> => {
         try {
             const { id } = req.params;
             const { userId } = req.body;
-            const updatedArticle = await articleService.likeArticle(id, userId);
+            const updatedArticle = await this._articleService.likeArticle(id, userId);
             res.status(200).json({ success: true, data: updatedArticle });
         } catch (error: any) {
             res.status(500).json({ success: false, message: error.message });
         }
     };
 
-    dislikeArticle = async (req: Request, res: Response) => {
+    dislikeArticle = async (req: Request, res: Response): Promise<any> => {
         try {
             const { id } = req.params;
             const { userId } = req.body;
-            const updatedArticle = await articleService.dislikeArticle(id, userId);
+            const updatedArticle = await this._articleService.dislikeArticle(id, userId);
             res.status(200).json({ success: true, data: updatedArticle });
         } catch (error: any) {
             res.status(500).json({ success: false, message: error.message });
         }
     }
 
-    fetchBlockedArticles = async (req: Request, res: Response) => {
+    fetchBlockedArticles = async (req: Request, res: Response): Promise<any> => {
         try {
             const { userId } = req.params;
-            const blockedArticles = await articleService.fetchBlockedArticles(userId);
+            const blockedArticles = await this._articleService.fetchBlockedArticles(userId);
             res.status(200).json(blockedArticles);
         } catch (error: any) {
             console.error("Error fetching blocked articles:", error);
@@ -135,10 +138,10 @@ export class ArticleController {
     }
 
 
-    unblockArticle = async (req: Request, res: Response) => {
+    unblockArticle = async (req: Request, res: Response): Promise<any> => {
         try {
             const { articleId } = req.params;
-            const unblockedArticle = await articleService.unblockArticle(articleId);
+            const unblockedArticle = await this._articleService.unblockArticle(articleId);
             res.status(200).json({
                 message: "Article unblocked successfully",
                 article: unblockedArticle,
@@ -149,10 +152,10 @@ export class ArticleController {
         }
     }
 
-    blockArticle = async (req: Request, res: Response) => {
+    blockArticle = async (req: Request, res: Response): Promise<any> => {
         try {
             const { articleId } = req.params;
-            const blockedArticle = await articleService.blockArticle(articleId);
+            const blockedArticle = await this._articleService.blockArticle(articleId);
             res.status(200).json({
                 message: "Article blocked successfully",
                 article: blockedArticle,

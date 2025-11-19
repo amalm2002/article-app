@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
-import { UserService } from "../services/userService";
+import { IUserService } from "../../services/interfaces/userService.interfces";
+import { IAuthController } from "../interfaces/authController.interface";
 
-const userService = new UserService();
 
-export class AuthController {
-    register = async (req: Request, res: Response) => {
+export class AuthController implements IAuthController {
+
+    constructor(private _userService: IUserService) { }
+
+    register = async (req: Request, res: Response): Promise<any> => {
         try {
             const { firstName, lastName, phone, email, dob, password, confirmPassword, categories } = req.body;
 
@@ -16,7 +19,7 @@ export class AuthController {
                 return res.status(400).json({ message: "Please select at least one category" });
             }
 
-            const user = await userService.registerUser({
+            const user = await this._userService.registerUser({
                 firstName,
                 lastName,
                 phone,
@@ -38,7 +41,7 @@ export class AuthController {
         }
     };
 
-    login = async (req: Request, res: Response) => {
+    login = async (req: Request, res: Response): Promise<any> => {
         try {
             const { email, password } = req.body;
             if (!email) {
@@ -48,7 +51,7 @@ export class AuthController {
                 return res.status(400).json({ message: "Passwords dose not exist" });
             }
 
-            const userLogin = await userService.loginUser({
+            const userLogin = await this._userService.loginUser({
                 email,
                 password
             })
