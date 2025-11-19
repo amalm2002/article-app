@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BookOpen, Search, Plus, Settings, List, LogOut, Ban } from "lucide-react";
@@ -142,9 +143,19 @@ const Dashboard = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No articles found</p>
+          <div className="flex flex-col items-center justify-center py-12">
+            <DotLottieReact
+              src="https://lottie.host/1f597fd1-a8a6-43cd-9be4-7bcf0fdd332c/7MpuH3UVNs.lottie"
+              loop
+              autoplay
+              className="w-[300px] h-[300px]"
+            />
+
+            <p className="mt-4 text-xl font-bold text-muted-foreground">
+              No Articles Found
+            </p>
           </div>
+
         )}
       </main>
 
