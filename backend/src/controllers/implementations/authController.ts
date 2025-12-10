@@ -9,12 +9,12 @@ export class AuthController implements IAuthController {
 
     constructor(private _userService: IUserService) { }
 
-    register = async (req: Request, res: Response): Promise<any> => {
+    register = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { firstName, lastName, phone, email, dob, password, confirmPassword, categories } = req.body;
 
             if (password !== confirmPassword) {
-                return res.status(STATUS_CODE.BAD_REQUEST).json({ message: MESSAGE.PASSWORD_MISMATCH});
+                return res.status(STATUS_CODE.BAD_REQUEST).json({ message: MESSAGE.PASSWORD_MISMATCH });
             }
 
             if (!categories || categories.length === 0) {
@@ -43,7 +43,7 @@ export class AuthController implements IAuthController {
         }
     };
 
-    login = async (req: Request, res: Response): Promise<any> => {
+    login = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { email, password } = req.body;
             if (!email) {

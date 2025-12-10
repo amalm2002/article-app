@@ -7,9 +7,9 @@ import { MESSAGE } from "../../constants/messages";
 
 export class UserController implements IUserController {
 
-    constructor(private _userService: IUserService) {}
+    constructor(private _userService: IUserService) { }
 
-    getUser = async (req: Request, res: Response) => {
+    getUser = async (req: Request, res: Response): Promise<Response> => {
         try {
             const userId = req.query.userId as string;
             if (!userId) {
@@ -28,7 +28,7 @@ export class UserController implements IUserController {
         }
     }
 
-    updateUser = async (req: Request, res: Response) => {
+    updateUser = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { userId, firstName, lastName, phone, email, dob } = req.body;
 
@@ -67,7 +67,7 @@ export class UserController implements IUserController {
         }
     }
 
-    changePassword = async (req: Request, res: Response) => {
+    changePassword = async (req: Request, res: Response): Promise<Response> => {
         try {
 
             const { userId, currentPassword, newPassword } = req.body
@@ -88,7 +88,7 @@ export class UserController implements IUserController {
         }
     }
 
-    updatePreference = async (req: Request, res: Response) => {
+    updatePreference = async (req: Request, res: Response): Promise<Response> => {
         try {
 
             const { userId, preference } = req.body

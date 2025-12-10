@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import User from "../../models/User";
-import { Login, Register } from "../../interfaces/user/authentication.types";
+import { Login, Register, UserDocumentDTO, UserResponseDTO } from "../../interfaces/user/authentication.types";
 import { UpdatePassword, updateThePreference, UserDetils } from "../../interfaces/user/user.profile.types";
 import { IUserService } from "../interfaces/userService.interfces";
 
 export class UserService implements IUserService {
 
-    async registerUser(userData: Register) {
+    async registerUser(userData: Register): Promise<UserResponseDTO> {
         const { email, phone, password } = userData;
 
         if (!email || !phone || !password) {
@@ -39,7 +39,7 @@ export class UserService implements IUserService {
     }
 
 
-    async loginUser(userLoginData: Login) {
+    async loginUser(userLoginData: Login): Promise<UserResponseDTO> {
         const { email, password } = userLoginData;
 
         const user = await User.findOne({ email })
@@ -59,7 +59,7 @@ export class UserService implements IUserService {
         return userWithoutPassword;
     }
 
-    async getUser(userId: string) {
+    async getUser(userId: string): Promise<UserDocumentDTO> {
 
         const user = await User.findById(userId)
 
@@ -67,10 +67,10 @@ export class UserService implements IUserService {
             throw new Error("User Not Found  ");
         }
 
-        return user
+        return user as UserDocumentDTO
     }
 
-    async updateUser(userData: UserDetils) {
+    async updateUser(userData: UserDetils): Promise<{ message: string }> {
         const { userId, firstName, lastName, phone, email, dob } = userData
 
         const user = await User.findById(userId)
@@ -86,7 +86,7 @@ export class UserService implements IUserService {
         return { message: 'User details updated successfully!' }
     }
 
-    async changePassword(updatePasswordData: UpdatePassword) {
+    async changePassword(updatePasswordData: UpdatePassword): Promise<{ message: string }> {
         const { userId, currentPassword, newPassword } = updatePasswordData;
 
         if (!userId || !currentPassword || !newPassword) {
@@ -127,7 +127,7 @@ export class UserService implements IUserService {
         return { message: "Password changed successfully!" };
     }
 
-    async updatePreference(preferenceData: updateThePreference) {
+    async updatePreference(preferenceData: updateThePreference): Promise<UserDocumentDTO> {
 
         const { userId, preference } = preferenceData
         const user = await User.findById(userId);
@@ -138,7 +138,6 @@ export class UserService implements IUserService {
 
         user.preferences = preference;
         await user.save();
-
         return user;
     }
 
