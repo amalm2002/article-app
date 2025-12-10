@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { IUserController } from "../interfaces/userController.interface";
 import { IUserService } from "../../services/interfaces/userService.interfces";
+import { STATUS_CODE } from "../../constants/statusCodes";
+import { MESSAGE } from "../../constants/messages";
 
 
 export class UserController implements IUserController {
@@ -11,17 +13,17 @@ export class UserController implements IUserController {
         try {
             const userId = req.query.userId as string;
             if (!userId) {
-                return res.status(400).json({ message: "No user Id found" });
+                return res.status(STATUS_CODE.BAD_REQUEST).json({ message: MESSAGE.USER_NOT_FOUND });
             }
             const user = await this._userService.getUser(userId)
-            return res.status(201).json({
-                message: "User fetched successfully",
+            return res.status(STATUS_CODE.OK).json({
+                message: MESSAGE.USER_FETCH_SUCCESS,
                 data: user,
             });
         } catch (error: any) {
             console.error("Fetch User Error:", error);
-            return res.status(500).json({
-                message: error.message || "Internal server error",
+            return res.status(STATUS_CODE.SERVER_ERROR).json({
+                message: error.message || MESSAGE.INTERNAL_ERROR,
             });
         }
     }
@@ -33,16 +35,16 @@ export class UserController implements IUserController {
             const phoneRegex = /^[1-9][0-9]{9}$/;
 
             if (!phoneRegex.test(phone)) {
-                return res.status(400).json({
-                    message: "Invalid phone number. It must be 10 digits and not start with 0.",
+                return res.status(STATUS_CODE.BAD_REQUEST).json({
+                    message: MESSAGE.INVALID_PHONE,
                 });
             }
 
             const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
             if (!emailRegex.test(email)) {
-                return res.status(400).json({
-                    message: "Invalid email format. Only Gmail addresses are allowed.",
+                return res.status(STATUS_CODE.BAD_REQUEST).json({
+                    message: MESSAGE.INVALID_EMAIL,
                 });
             }
 
@@ -54,13 +56,13 @@ export class UserController implements IUserController {
                 email,
                 dob
             })
-            return res.status(201).json({
-                message: "User details updated successfully",
+            return res.status(STATUS_CODE.CREATED).json({
+                message: MESSAGE.USER_UPDATE_SUCCESS,
             });
         } catch (error: any) {
             console.error("Update User Details Error:", error);
-            return res.status(500).json({
-                message: error.message || "Internal server error",
+            return res.status(STATUS_CODE.SERVER_ERROR).json({
+                message: error.message || MESSAGE.INTERNAL_ERROR,
             });
         }
     }
@@ -76,12 +78,12 @@ export class UserController implements IUserController {
                 newPassword
             })
 
-            return res.status(200).json({ message: 'Password change successfully' })
+            return res.status(STATUS_CODE.OK).json({ message: MESSAGE.PASSWORD_CHANGED })
 
         } catch (error: any) {
             console.error("Failed to change password:", error);
-            return res.status(500).json({
-                message: error.message || "Internal server error",
+            return res.status(STATUS_CODE.SERVER_ERROR).json({
+                message: error.message || MESSAGE.INTERNAL_ERROR,
             });
         }
     }
@@ -96,12 +98,12 @@ export class UserController implements IUserController {
                 preference
             })
 
-            return res.status(200).json({ message: 'Preference updated successfully !', user: updateThePreference })
+            return res.status(STATUS_CODE.OK).json({ message: MESSAGE.PREFERENCE_UPDATED, user: updateThePreference })
 
         } catch (error: any) {
             console.error("Failed to update the preference:", error);
-            return res.status(500).json({
-                message: error.message || "Internal server error",
+            return res.status(STATUS_CODE.SERVER_ERROR).json({
+                message: error.message || MESSAGE.INTERNAL_ERROR,
             });
         }
     }

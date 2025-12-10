@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { IUserService } from "../../services/interfaces/userService.interfces";
 import { IAuthController } from "../interfaces/authController.interface";
+import { STATUS_CODE } from "../../constants/statusCodes";
+import { MESSAGE } from "../../constants/messages";
 
 
 export class AuthController implements IAuthController {
@@ -12,11 +14,11 @@ export class AuthController implements IAuthController {
             const { firstName, lastName, phone, email, dob, password, confirmPassword, categories } = req.body;
 
             if (password !== confirmPassword) {
-                return res.status(400).json({ message: "Passwords do not match" });
+                return res.status(STATUS_CODE.BAD_REQUEST).json({ message: MESSAGE.PASSWORD_MISMATCH});
             }
 
             if (!categories || categories.length === 0) {
-                return res.status(400).json({ message: "Please select at least one category" });
+                return res.status(STATUS_CODE.BAD_REQUEST).json({ message: MESSAGE.CATEGORY_REQUIRED });
             }
 
             const user = await this._userService.registerUser({
@@ -29,14 +31,14 @@ export class AuthController implements IAuthController {
                 preferences: categories,
             });
 
-            return res.status(200).json({
-                message: "User registered successfully",
+            return res.status(STATUS_CODE.OK).json({
+                message: MESSAGE.USER_REGISTERED,
                 data: user,
             });
         } catch (error: any) {
             console.error("Register Error:", error);
-            return res.status(500).json({
-                message: error.message || "Internal server error",
+            return res.status(STATUS_CODE.SERVER_ERROR).json({
+                message: error.message || MESSAGE.INTERNAL_ERROR,
             });
         }
     };
@@ -45,24 +47,24 @@ export class AuthController implements IAuthController {
         try {
             const { email, password } = req.body;
             if (!email) {
-                return res.status(400).json({ message: "Please fill the email" });
+                return res.status(STATUS_CODE.BAD_REQUEST).json({ message: MESSAGE.EMAIL_REQUIRED });
             }
             if (!password) {
-                return res.status(400).json({ message: "Passwords dose not exist" });
+                return res.status(STATUS_CODE.BAD_REQUEST).json({ message: MESSAGE.PASSWORD_REQUIRED });
             }
 
             const userLogin = await this._userService.loginUser({
                 email,
                 password
             })
-            return res.status(201).json({
-                message: "User logined successfully",
+            return res.status(STATUS_CODE.OK).json({
+                message: MESSAGE.LOGIN_SUCCESS,
                 data: userLogin,
             });
         } catch (error: any) {
             console.error("Login Error:", error);
-            return res.status(500).json({
-                message: error.message || "Internal server error",
+            return res.status(STATUS_CODE.SERVER_ERROR).json({
+                message: error.message || MESSAGE.INTERNAL_ERROR,
             });
         }
     }

@@ -1,14 +1,14 @@
 import { Types } from "mongoose";
 import cloudinary from "../../config/cloudinary";
-import { ArticleData } from "../../interfaces/article/article.types";
+import { ArticleData, ArticleDetails, ArticleDocument, ArticleResponseDTO } from "../../interfaces/article/article.types";
 import { Article } from "../../models/Article";
 import { IArticleService } from "../interfaces/articleService.interfaces";
 
 
 
 export class ArticleService implements IArticleService {
-   
-    async createArticle(data: ArticleData): Promise<any> {
+
+    async createArticle(data: ArticleData): Promise<ArticleResponseDTO> {
         const { title, description, category, tags, userId, image } = data;
 
         let imageUrl = "";
@@ -29,7 +29,7 @@ export class ArticleService implements IArticleService {
 
         }
 
-        const article = await Article.create({
+        const articles = await Article.create({
             title,
             description,
             category,
@@ -38,30 +38,43 @@ export class ArticleService implements IArticleService {
             imageUrl,
         });
 
+        const article: ArticleResponseDTO = {
+            title: articles.title,
+            description: articles.description,
+            category: articles.category,
+            imageUrl: articles.imageUrl,
+            tags: articles.tags,
+            likes: articles.likes,
+            dislikes: articles.dislikes,
+            likedBy: articles.likedBy.map(id => id.toString()),
+            dislikedBy: articles.dislikedBy.map(id => id.toString()),
+            userId: articles.userId.toString(),
+            isActive: articles.isActive
+        };
+
         return article;
     }
 
-    async getArticles(userId: string) {
+    async getArticles(userId: string): Promise<ArticleDocument[]> {
         const articles = await Article.find({ userId })
         return articles
     }
 
-    async getPreferenceArticles(userId: string, preferences: string[]) {
+    async getPreferenceArticles(userId: string, preferences: string[]): Promise<ArticleDocument[]> {
         const articles = await Article.find({
             category: { $in: preferences },
             isActive: true
         });
-
         return articles;
     };
 
-    async getArticleDetails(articleId: string) {
+    async getArticleDetails(articleId: string): Promise<ArticleDetails> {
         const article = await Article.findById(articleId);
         if (!article) throw new Error("Article not found");
         return article;
     }
 
-    async updateArticle(articleId: string, data: any, file?: Express.Multer.File) {
+    async updateArticle(articleId: string, data: any, file?: Express.Multer.File): Promise<ArticleResponseDTO> {
         const article = await Article.findById(articleId);
         if (!article) throw new Error("Article not found");
 
@@ -96,7 +109,7 @@ export class ArticleService implements IArticleService {
         return article;
     }
 
-    async deleteArticle(articleId: string) {
+    async deleteArticle(articleId: string): Promise<boolean | null> {
         const article = await Article.findById(articleId);
         if (!article) return null;
 
@@ -128,7 +141,7 @@ export class ArticleService implements IArticleService {
         }
     }
 
-    async likeArticle(articleId: string, userId: string) {
+    async likeArticle(articleId: string, userId: string): Promise<ArticleResponseDTO> {
         const article = await Article.findById(articleId);
         if (!article) throw new Error("Article not found");
 
@@ -161,7 +174,7 @@ export class ArticleService implements IArticleService {
         return article;
     }
 
-    async dislikeArticle(articleId: string, userId: string) {
+    async dislikeArticle(articleId: string, userId: string): Promise<ArticleResponseDTO> {
         const article = await Article.findById(articleId);
         if (!article) throw new Error("Article not found");
 
@@ -194,16 +207,16 @@ export class ArticleService implements IArticleService {
         return article;
     }
 
-    async fetchBlockedArticles(userId: string) {
+    async fetchBlockedArticles(userId: string): Promise<ArticleDocument[]> {
         try {
-            const articles = await Article.find({ userId }, { isActive: false });
+            const articles = await Article.find({ userId, isActive: false });
             return articles;
         } catch (error: any) {
             throw new Error("Failed to fetch blocked articles");
         }
     }
 
-    async unblockArticle(articleId: string) {
+    async unblockArticle(articleId: string): Promise<ArticleResponseDTO> {
         try {
             const article = await Article.findById(articleId);
             if (!article) {
@@ -218,7 +231,7 @@ export class ArticleService implements IArticleService {
         }
     }
 
-    async blockArticle(articleId: string) {
+    async blockArticle(articleId: string): Promise<ArticleResponseDTO> {
         try {
             const article = await Article.findById(articleId);
             if (!article) {
